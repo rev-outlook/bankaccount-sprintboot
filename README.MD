@@ -51,11 +51,85 @@ Account data model:
 
 The application will start on: http://localhost:8080
 
-H2 database console is enabled at http://localhost:8080/h2-console/
+Under the hood we use H2 in memory database to emulate a postgres sql like environment.
+H2 database console is enabled at http://localhost:8080/h2-console/. Please open this link to see the changes on the database visually with the db connection details below.
 
-### H2 Console details:
+### H2 Console details
 
 Driver Class: org.h2.Driver
 JDBC URL: jdbc:h2:mem:bankdb
 User Name: sa
-Password: (none/empty)
+Password: (empty)
+
+---
+
+## API Endpoints
+
+| Method | URL                  | Description                   | Request Body | Response             |
+| :----- | :------------------- | :---------------------------- | :----------- | :------------------- |
+| POST   | `/api/accounts`      | Create a new bank account     | JSON         | Created Account JSON |
+| GET    | `/api/accounts/{id}` | Retrieve a bank account by ID | -            | Account JSON         |
+
+---
+
+### Create a New Bank Account
+
+**POST** `/api/accounts`
+
+#### Request Body
+
+```json
+{
+  "customerName": "John Doe",
+  "accountNickName": "FamilySavings" //to trigger profanity filter use "badword", "offensive" or "nasty"
+}
+```
+
+| Field           | Type   | Required | Constraints                    |
+| --------------- | ------ | -------- | ------------------------------ |
+| customerName    | String | Yes      | Cannot be blank                |
+| accountNickName | String | No       | 5-30 characters, not offensive |
+
+#### Successful Response (200 OK)
+
+```json
+{
+  "id": 1,
+  "accountNumber": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+  "customerName": "John Doe",
+  "accountNickName": "FamilySavings"
+}
+```
+
+#### Possible Error Responses
+
+- `400 Bad Request`: If nickname invalid, customerName missing, or more than 5 accounts exist
+- `503 Service Unavailable`: If database is down
+
+---
+
+### Get an Existing Bank Account
+
+**GET** `/api/accounts/{id}`
+
+#### Path Parameter
+
+- `id` — (Long) ID of the account
+
+#### Successful Response (200 OK)
+
+```json
+{
+  "id": 1,
+  "accountNumber": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+  "customerName": "John Doe",
+  "accountNickName": "FamilySavings"
+}
+```
+
+#### Possible Error Responses
+
+- `404 Not Found`: If no account found with given ID
+- `503 Service Unavailable`: If database is down
+
+---
